@@ -1,0 +1,86 @@
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/all.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    
+    <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'admin/jquery.ui.datepicker.jalali/themes/base/jquery-ui.min.css' %}">
+    <script src="{% static 'admin/js/django_jalali.min.js' %}"></script>
+    <title>{% block title %}{% endblock title %}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .pagination {
+          margin-top: 20px;
+          text-align: center;
+      }
+      .pagination .step-links {
+          display: inline-block;
+      }
+      .pagination .current {
+          margin: 0 10px;
+      }
+    </style>
+</head>
+<body>
+  {% if user.is_authenticated %}
+<nav class="navbar navbar-expand-md navbar-dark bg-dark text-right">
+  
+    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#myNav">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="myNav">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a href="{% url 'attendance_dashboard' %}" class="nav-link active"> حضور و غیاب</a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'my_leave_requests' %}" class="nav-link active">  مرخصی </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'my_salary' %}" class="nav-link active">مشاهده حقوق</a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'password_change' %}" class="nav-link active">تغییر رمز عبور</a>
+            </li>
+            
+            <li class="nav-item">
+                <form method="post" action="{% url 'logout' %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger">خروج</button>
+                </form>
+              
+            </li>
+           
+        </ul>
+    </div>
+</nav>
+{% endif %}
+<!-- end navbar -->
+    <!-- start navbar-->
+    <div class="container-fluid">
+      {% if messages %}
+      {% for message in messages %}
+        <div id="message" class="container">
+          <div class="alert alert-{{ message.tags }} alert-dismissible text-center" role="alert">
+            <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span></button>
+            {{ message }}
+          </div>
+        </div>
+      {% endfor %}
+    {% endif %}
+    </div>
+    {% block content %}
+ 
+    {% endblock content %}
+
+</body>
+</html>

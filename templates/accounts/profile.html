@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}پنل کاربری{% endblock title %}
+{% load jalali_tags %}
+{% block content %}
+{% include 'includes/_navbar.html' %}
+<div class="container-fluid">
+    <div class="row mt-5">
+        <div class="col-md-7 mx-auto">
+            <div class="card">
+                <div class="card-header bg-info text-center text-white">
+                    <h3>پنل کاربر</h3>
+                </div>
+                <div class="card-body text-right" dir="rtl">
+                    <p><img src="" alt="" class="d-block mx-auto"></p>
+                   <p> نام و نام خانوادگی: {{ request.user.first_name }} {{ request.user.last_name}}</p>
+                   <p> نام کاربری: {{ request.user.username}}</p>
+                   <p>ایمیل: {{request.user.email}}</p>
+                   <p>آخرین ورود: {{request.user.last_login|to_jalali:'%Y/%m/%d _ %H:%M:%S'}} </p>
+                   
+                   <p><a href="{% url 'password_change' %}" class="btn btn-outline-danger">تغییر رمز عبور</a></p>
+                   <p><a href="{% url 'edit_profile' %}" class="btn btn-outline-success">ویرایش پروفایل</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+{% endblock content %}

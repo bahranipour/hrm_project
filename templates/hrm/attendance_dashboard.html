@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load jalali_tags %}
+
+{% block content %}
+<div class="container">
+<h1 class="mb-4 text-center">سوابق حضور و غیاب</h1>
+<hr>
+<div class="text-center my-4">
+    {% if not last_attendance.check_out_datetime %}
+        {% if not last_attendance.check_in_datetime %}
+            <a href="{% url 'check_in' %}" class="btn btn-success btn-lg">ثبت ورود</a>
+        {% else %}
+            <a href="{% url 'check_out' %}" class="btn btn-danger btn-lg">ثبت خروج</a>
+        {% endif %}
+    {% endif %}
+</div>
+   <!-- تایمر زنده -->
+   {% if last_attendance and not last_attendance.check_out_datetime %}
+   <div class="alert alert-info mt-3 text-center">
+       مدت زمان سپری شده: 
+       <span id="live-timer" data-checkin="{{ last_attendance.check_in_datetime|date:'c' }}">00:00</span>
+   </div>
+   {% endif %}
+<!-- جدول سوابق -->
+<div class="table-responsive">
+    <table class="table table-bordered table-hover text-center">
+        <thead>
+            <tr class="bg-info text-white">
+                <th>تاریخ</th>
+                <th>ورود</th>
+                <th>خروج</th>
+                <th>مدت کار</th>
+                <th>وضعیت</th> <!-- ستون جدید -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in attendance_records %}
+            <tr>
+                <td>{{ record.date|to_jalali }}</td>
+                <td>{{ record.check_in_datetime|time:"H:i:s" }}</td>
+                <td>{{ record.check_out_datetime|time:"H:i:s"|default:"-" }}</td>
+                <td>{{ record.working_duration }}</td>
+                <td>{{ record.get_status_display }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">هیچ سابقه‌ای یافت نشد</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- صفحه‌بندی با Bootstrap -->
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if attendance_records.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1" aria-label="First">
+                    <span aria-hidden="true">&laquo;&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ attendance_records.previous_page_number }}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+        {% endif %}
+
+        {% for num in attendance_records.paginator.page_range %}
+            {% if attendance_records.number == num %}
+                <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+            {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+            {% endif %}
+        {% endfor %}
+
+        {% if attendance_records.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ attendance_records.next_page_number }}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ attendance_records.paginator.num_pages }}" aria-label="Last">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+
+</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // تایمر پیشرفته با محاسبه خودکار
+        const timerElement = document.getElementById('live-timer');
+        if (timerElement) {
+            const startTime = new Date(timerElement.dataset.checkin);
+            
+            function updateTimer() {
+                const now = new Date();
+                const diff = Math.floor((now - startTime) / 1000);
+                
+                // محاسبه ساعت، دقیقه و ثانیه
+                const hours = Math.floor(diff / 3600).toString().padStart(2, '0');
+                const minutes = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
+                const seconds = (diff % 60).toString().padStart(2, '0');
+                
+                timerElement.textContent = `${hours}:${minutes}:${seconds}`;
+                
+                // تغییر رنگ پس از ۸ ساعت
+                if (diff > 28800) { // 8 ساعت = 28800 ثانیه
+                    timerElement.classList.add('text-danger');
+                }
+            }
+            
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        }
+    
+        // اعتبارسنجی ثبت خروج
+        const checkOutBtn = document.querySelector('.btn-danger');
+        if (checkOutBtn) {
+            checkOutBtn.addEventListener('click', function(e) {
+                const duration = new Date() - new Date("{{ last_attendance.check_in_datetime|date:'c' }}");
+                if (duration < 60000) { // کمتر از ۱ دقیقه
+                    e.preventDefault();
+                    alert('حداقل باید ۱ دقیقه از زمان ورود شما گذشته باشد!');
+                }
+            });
+        }
+    });
+    </script>
+{% endblock %}

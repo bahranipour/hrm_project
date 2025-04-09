@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}درخواست های مرخصی من{% endblock title %}
+{% load jalali_tags %}
+{% block content %}
+
+<div class="container">
+    <h1 class="text-center">درخواست‌های مرخصی من</h1>
+    <hr>
+    <a href="{% url 'create_leave_request' %}" class="btn btn-success float-right">  <i class="fas fa-plus"></i> درخواست جدید  </a>
+    <br><br>
+    <div class="table-responsive">
+        <table class="table table-bordered bg-white table-hover">
+            <tr class="text-center text-white" style="background-color: teal;">
+                <th>تاریخ شروع</th>
+                <th>تاریخ پایان</th>
+                <th>علت</th>
+                <th>عملیات</th>
+                <th>وضعیت</th>
+            </tr>
+            {% for req in leave_requests %}
+            <tr class="text-center">
+                <td>{{ req.start_date|to_jalali}}</td>
+                <td>{{ req.end_date|to_jalali}}</td>
+                <td>{{req.reason}}</td>
+                <td>
+                    {% if req.status == 'pending' %}
+                        <a href="{% url 'edit_leave_request' req.pk %}" class="btn btn-sm btn-warning">ویرایش</a>
+                    {% endif %}
+                </td>
+                <td>{{ req.get_status_display }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        
+    </div>
+    <!-- بخش صفحه‌بندی -->
+<div class="pagination">
+    <span class="step-links">
+        {% if leave_requests.has_previous %}
+            <a href="?page=1" class="btn btn-sm btn-outline-primary">&laquo; اولین</a>
+            <a href="?page={{ leave_requests.previous_page_number }}" class="btn btn-sm btn-outline-primary">قبلی</a>
+        {% endif %}
+
+        <span class="current">
+            صفحه {{ leave_requests.number }} از {{ leave_requests.paginator.num_pages }}
+        </span>
+
+        {% if leave_requests.has_next %}
+            <a href="?page={{ leave_requests.next_page_number }}" class="btn btn-sm btn-outline-primary">بعدی</a>
+            <a href="?page={{ leave_requests.paginator.num_pages }}" class="btn btn-sm btn-outline-primary">آخرین &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+</div>
+
+
+
+
+{% endblock content %}

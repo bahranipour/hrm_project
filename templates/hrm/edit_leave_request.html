@@ -1,0 +1,29 @@
+{% extends 'base.html' %}  <!-- اگر تمپلیت پایه دارید -->
+{% load crispy_forms_tags %}
+
+{% block title %}ویرایش درخواست{% endblock title %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row mt-3">
+        <div class="col-md-6 col-sm-10 mx-auto">
+            <div class="card bg-light" dir="rtl">
+                <div class="card-header" style="background-color:coral;">
+                    <h3 class="text-center text-white">ویرایش درخواست مرخصی</h3>
+                </div>
+                <div class="card-body text-right">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{form|crispy}}
+                    
+                        <button type="submit" class="btn btn-primary">ارسال درخواست</button>
+                    </form>
+                    {{form.media}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br><br>
+{% endblock %}
